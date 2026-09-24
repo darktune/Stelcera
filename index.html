@@ -672,29 +672,14 @@
 
   // Continuous equity, balance, and P&L live updater
   setInterval(() => {
-    if (!window.livePrice) return;
-    const price = window.livePrice;
-    // Update balance display with unrealized P&L
-    const trades = window.activeTrades || [];
-    let unrealizedPL = 0;
-    trades.forEach(t => {
-      if (!t.isOpen || t.amount <= 0) return;
-      const pl = t.type === 'buy'
-        ? (price - t.entryPrice) * (t.amount / t.entryPrice)
-        : (t.entryPrice - price) * (t.amount / t.entryPrice);
-      unrealizedPL += pl;
-    });
-    const bal = (window.tradeMode === 'demo' ? window.demoBalance : window.liveBalance) || 0;
-    const equity = bal + unrealizedPL;
-    const balEl = document.getElementById('balanceDisplay');
-    if (balEl) {
-      const mode = (window.tradeMode || 'demo').toUpperCase();
-      balEl.textContent = `${mode}: $${equity.toFixed(2)}`;
-      balEl.style.color = unrealizedPL >= 0 ? 'var(--green)' : 'var(--red)';
+    if (typeof window.refreshBalanceDisplay === 'function') {
+      window.refreshBalanceDisplay();
     }
-    // Price display
-    const priceEl = document.getElementById('priceDisplay');
-    if (priceEl) priceEl.textContent = `${window.currentPair || 'BTC/USDT'}: $${price.toFixed(2)}`;
+    if (window.livePrice) {
+      const price = window.livePrice;
+      const priceEl = document.getElementById('priceDisplay');
+      if (priceEl) priceEl.textContent = `${window.currentPair || 'BTC/USDT'}: $${price.toFixed(2)}`;
+    }
   }, 400);
 
   function renderPremiumOverlays() {

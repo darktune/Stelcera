@@ -196,8 +196,8 @@ function setBalance(val) {
 function refreshBalanceDisplay() {
   const el = document.getElementById('balanceDisplay');
   if (!el) return;
-  const bal = tradeMode === 'demo' ? demoBalance : liveBalance;
-  // Include unrealized P&L to show equity (prevents shaking from competing updaters)
+  const cashBal = (tradeMode === 'demo' ? demoBalance : liveBalance) || 0;
+  let openMargin = 0;
   let unrealizedPL = 0;
   const price = getCurrentPrice();
   if (price && activeTrades) {
@@ -206,13 +206,14 @@ function refreshBalanceDisplay() {
       const pl = t.type === 'buy'
         ? (price - t.entryPrice) * (t.amount / t.entryPrice)
         : (t.entryPrice - price) * (t.amount / t.entryPrice);
+      openMargin += t.amount;
       unrealizedPL += pl;
     });
   }
-  const equity = bal + unrealizedPL;
-  const mode = tradeMode.toUpperCase();
+  const equity = cashBal + openMargin + unrealizedPL;
+  const mode = (tradeMode || 'demo').toUpperCase();
   el.textContent = `${mode}: $${equity.toFixed(2)}`;
-  el.style.color = unrealizedPL >= 0 ? 'var(--green)' : 'var(--text)';
+  el.style.color = unrealizedPL >= 0 ? 'var(--green)' : 'var(--red)';
 }
 
 // ============================================================
