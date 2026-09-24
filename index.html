@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Stelcera Terminal</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-dark">
+
+<div class="tv-layout">
+  
+  <!-- TOP HEADER -->
+  <header class="tv-header">
+    <div class="header-left">
+      <div class="tv-logo">
+        <img src="favicon.svg" alt="Stelcera" class="logo-img"/>
+        <span class="logo-text">STELCERA</span>
+      </div>
+      <div class="header-divider"></div>
+      
+      <!-- Pair Selector -->
+      <div class="pair-selector" id="pairSelectorBtn">
+        <div class="pair-icons">
+          <img id="assetBaseIcon" src="/fallback.svg" alt="Base"/>
+          <img id="assetQuoteIcon" src="/fallback.svg" alt="Quote"/>
+        </div>
+        <div class="pair-info">
+          <span id="assetBadgeText" class="pair-name">BTCUSDT</span>
+          <select id="assetSelector" class="hidden-select"></select>
+        </div>
+      </div>
+
+      <div class="header-price">
+        <span id="priceDisplay">--</span>
+      </div>
+    </div>
+
+    <div class="header-center" style="display:flex; align-items:center; gap:16px;">
+      <!-- Timeframes -->
+      <div class="tf-pill">
+        <button class="tf-btn active" data-tf="1m">1m</button>
+        <button class="tf-btn" data-tf="5m">5m</button>
+        <button class="tf-btn" data-tf="15m">15m</button>
+        <button class="tf-btn" data-tf="1h">1h</button>
+        <button class="tf-btn" data-tf="4h">4h</button>
+        <button class="tf-btn" data-tf="1d">1d</button>
+      </div>
+
+      <div class="header-divider"></div>
+
+      <!-- Chart Style Toggle -->
+      <button class="tv-btn outline" id="chartStyleToggle" style="display:flex; align-items:center; gap:6px; min-width:90px; color:var(--gold); border-color:var(--border);">
+        <span>📊 Blocks</span>
+      </button>
+
+      <div class="header-divider"></div>
+
+      <!-- Indicators Selector -->
+      <select id="indicatorsSelect" class="tv-dropdown">
+        <option value="">Indicators</option>
+        <option value="ema9">EMA (9)</option>
+        <option value="ema21">EMA (21)</option>
+        <option value="sma50">SMA (50)</option>
+        <option value="bb">Bollinger Bands</option>
+        <option value="rsi">RSI Lower Panel</option>
+        <option value="macd">MACD Lower Panel</option>
+        <option value="vp">Volume Profile</option>
+      </select>
+
+      <div class="header-divider"></div>
+
+      <!-- Replay Toggle -->
+      <button class="tv-btn outline" id="replayToggleBtn" style="color:var(--gold); border-color:var(--gold); display:flex; align-items:center; gap:6px;">
+        <span>⏪ Replay Mode</span>
+      </button>
+    </div>
+
+    <div class="header-right">
+      <div class="mode-switch-pill" style="margin-right:12px; display:flex;">
+        <button class="mode-btn active" id="modeDemoBtn">Demo</button>
+        <button class="mode-btn" id="modeRealBtn">Live</button>
+      </div>
+      <div class="balance-display">
+        <span class="bal-label">Eq:</span> <span id="balanceDisplay" class="bal-val">$10,000.00</span>
+      </div>
+      <div id="wsStatus" class="ws-badge sim">Simulated</div>
+      
+      <!-- Theme Switcher -->
+      <div class="theme-toggle-wrapper" title="Toggle Dark/Light Mode">
+        <svg class="theme-icon moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <label class="ios-switch">
+          <input type="checkbox" id="themeSwitch">
+          <span class="ios-slider"></span>
+        </label>
+        <svg class="theme-icon sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      </div>
+
+      <button id="excConnectBtn" class="tv-btn outline">Connect Broker</button>
+      <button id="excDisconnectBtn" class="tv-btn danger outline hidden">Disconnect</button>
+      
+      <div class="header-divider"></div>
+      <button id="headerRightToggle" class="tv-icon-btn" title="Toggle Order Panel">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <div class="tv-body">
+    
+    <!-- LEFT TOOLBAR -->
+    <aside class="tv-left-toolbar">
+      <button class="tool-btn active" data-tool="none" title="Crosshair">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="trend" title="Trend Line">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="20" x2="20" y2="4"/><circle cx="4" cy="20" r="1.5" fill="currentColor"/><circle cx="20" cy="4" r="1.5" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="pen" title="Freehand Draw">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="hline" title="Horizontal Ray">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="vline" title="Vertical Line">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><circle cx="12" cy="2" r="1.5" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="fib" title="Fibonacci Retracement">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="4" x2="21" y2="4" stroke-opacity="0.4"/><line x1="3" y1="8" x2="21" y2="8" stroke-opacity="0.6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="16" x2="21" y2="16" stroke-opacity="0.6"/><line x1="3" y1="20" x2="21" y2="20" stroke-opacity="0.4"/><line x1="4" y1="3" x2="4" y2="21" stroke-dasharray="2 2" stroke-opacity="0.3"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="predictor" title="Price Prediction">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </button>
+      
+      <div class="toolbar-spacer"></div>
+      
+      <button class="tool-btn danger" id="resetToolsBtn" title="Clear All Drawings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      </button>
+    </aside>
+
+    <!-- CENTER CHART AREA -->
+    <main class="tv-main-center">
+      <div class="chart-wrapper" id="chartWrapper">
+        <!-- Replay Control Bar -->
+        <div id="replayControlBar" class="replay-bar hidden" style="position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:100;">
+          <span class="replay-title">⏪ REPLAY ACTIVE</span>
+          <div class="header-divider"></div>
+          <button class="replay-ctrl-btn" id="replayRewindBtn" title="Select Rewind Point">⏮</button>
+          <button class="replay-ctrl-btn" id="replayPlayBtn" title="Play/Pause Replay">⏯</button>
+          <button class="replay-ctrl-btn" id="replayStepBtn" title="Step Forward">⏭</button>
+          <select id="replaySpeedSelect" class="tv-dropdown" style="padding:2px 6px; font-size:10px; border-color:var(--border);">
+            <option value="1000">1x</option>
+            <option value="500">2x</option>
+            <option value="200">5x</option>
+          </select>
+          <button class="replay-ctrl-btn" id="replayExitBtn" title="Exit Replay Mode" style="color:var(--red); margin-left:6px; font-weight:700;">✕</button>
+        </div>
+
+        <canvas id="gridCanvas"></canvas>
+        <canvas id="chartCanvas"></canvas>
+        <div id="tradeMarkersLayer"></div>
+      </div>
+      
+      <!-- BOTTOM PANEL -->
+      <div class="tv-bottom-panel">
+        <div class="bp-header">
+          <div class="bp-tabs">
+            <button class="bp-tab active" data-tab="activeTrades">Positions</button>
+            <button class="bp-tab" data-tab="history">Order History</button>
+            <button class="bp-tab" data-tab="sentiment">Sentiment &amp; News</button>
+            <button class="bp-tab" data-tab="seasonals">Performance &amp; Seasonals</button>
+          </div>
+          <div class="bp-right">
+            <span id="pnlDisplay" class="pnl-text">P&amp;L: 0.00%</span>
+          </div>
+        </div>
+        <div class="bp-content">
+          <div class="bp-pane active" id="pane-activeTrades">
+            <div class="positions-table-wrapper">
+              <table class="positions-table" id="positionsTable">
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Volume</th>
+                    <th>Entry Price</th>
+                    <th>Current Price</th>
+                    <th>S/L</th>
+                    <th>T/P</th>
+                    <th>Profit</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="positionsTableBody">
+                  <tr class="positions-empty-row">
+                    <td colspan="9" style="text-align:center; color:var(--text-muted); font-style:italic; padding:24px;">No open positions</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="closeTradeButtons" class="close-buttons-row"></div>
+          </div>
+          
+          <div class="bp-pane" id="pane-history">
+            <div id="tradeHistoryList" class="history-grid"></div>
+          </div>
+          
+          <!-- Sentiment & News pane -->
+          <div class="bp-pane" id="pane-sentiment">
+            <div class="sentiment-grid">
+              <div class="sentiment-gauge-wrapper">
+                <span class="gauge-title">Technical Consensus Gauge</span>
+                <div class="radial-gauge">
+                  <div class="radial-gauge-fill" id="sentimentGaugeFill" style="transform: rotate(45deg);"></div>
+                </div>
+                <div class="radial-gauge-value" id="sentimentGaugeText">NEUTRAL</div>
+                <div class="consensus-bar-container">
+                  <div class="consensus-segment buy" id="cBuy" style="width: 45%;" title="Buy: 45%"></div>
+                  <div class="consensus-segment hold" id="cHold" style="width: 35%;" title="Hold: 35%"></div>
+                  <div class="consensus-segment sell" id="cSell" style="width: 20%;" title="Sell: 20%"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; width:100%; font-size:11px; color:var(--text-muted);">
+                  <span>BUY: <strong id="cBuyText" style="color:var(--green)">45%</strong></span>
+                  <span>HOLD: <strong id="cHoldText">35%</strong></span>
+                  <span>SELL: <strong id="cSellText" style="color:var(--red)">20%</strong></span>
+                </div>
+              </div>
+              <div class="news-list" id="sentimentNewsList">
+                <!-- news elements appended dynamically -->
+                <div class="news-card">
+                  <div class="news-meta">
+                    <span class="news-badge bullish">BULLISH</span>
+                    <span>10m ago</span>
+                  </div>
+                  <div class="news-title">Institutional inflows for BTC accelerate as spot ETF volumes reach records.</div>
+                </div>
+                <div class="news-card">
+                  <div class="news-meta">
+                    <span class="news-badge bearish">BEARISH</span>
+                    <span>45m ago</span>
+                  </div>
+                  <div class="news-title">Ethereum gas fees touch multi-year lows, raising inflation concerns.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Performance & Seasonals pane -->
+          <div class="bp-pane" id="pane-seasonals">
+            <div class="technicals-grid-panel">
+              <div>
+                <span style="font-weight:700; font-size:13px; color:var(--gold); display:block; margin-bottom:10px;">Asset Seasonals (Average Monthly Return)</span>
+                <div class="seasonals-matrix" id="seasonalsMatrix">
+                  <!-- cells rendered dynamically -->
+                </div>
+              </div>
+              <div>
+                <span style="font-weight:700; font-size:13px; color:var(--gold); display:block; margin-bottom:10px;">Technical Summaries</span>
+                <table class="tech-table">
+                  <thead>
+                    <tr><th>Name</th><th>Value</th><th>Action</th></tr>
+                  </thead>
+                  <tbody id="technicalsSummaryBody">
+                    <tr><td>RSI (14)</td><td id="techRsiVal">54.20</td><td><span class="tech-status neutral">NEUTRAL</span></td></tr>
+                    <tr><td>MACD (12, 26)</td><td id="techMacdVal">Bullish Cross</td><td><span class="tech-status buy">BUY</span></td></tr>
+                    <tr><td>EMA (9) vs EMA (21)</td><td id="techEmaVal">Golden Cross</td><td><span class="tech-status buy">BUY</span></td></tr>
+                    <tr><td>Bollinger Bands</td><td id="techBbVal">Trading in range</td><td><span class="tech-status neutral">NEUTRAL</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL (Order Panel) -->
+    <aside class="tv-right-panel" id="rightPanel">
+      
+      <!-- Order Panel Header -->
+      <div class="rp-header">
+        <div class="rp-tabs">
+          <button class="rp-tab active" data-rptab="order">Order</button>
+          <button class="rp-tab" data-rptab="dom">DOM</button>
+          <button class="rp-tab" data-rptab="ai" style="color:var(--gold);">🧠 AI</button>
+          <button class="rp-tab" data-rptab="watchlist">📁 List</button>
+          <button class="rp-tab" data-rptab="objects">🌳 Tree</button>
+        </div>
+      </div>
+
+      <div class="rp-scroll">
+        <div id="rp-pane-order" class="rp-pane active">
+        
+        <!-- Action Buttons -->
+        <div class="rp-action-btns">
+          <button class="action-btn sell" id="rpSellBtn">
+            <span class="act-title">Sell</span>
+            <span class="act-price" id="rpSellPrice">--</span>
+          </button>
+          <button class="action-btn buy" id="rpBuyBtn">
+            <span class="act-title">Buy</span>
+            <span class="act-price" id="rpBuyPrice">--</span>
+          </button>
+        </div>
+
+        <div class="rp-section">
+          <div class="order-type-tabs">
+            <button class="ot-tab active">Market</button>
+            <button class="ot-tab disabled">Limit</button>
+            <button class="ot-tab disabled">Stop</button>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="rp-label-row">
+            <label>Amount</label>
+            <span class="rp-hint">USD</span>
+          </div>
+          <div class="input-wrapper">
+            <input type="number" id="tradeAmountInput" class="tv-input" placeholder="0.00" min="0.01" step="0.01"/>
+            <div class="input-stepper">
+              <button class="step-btn up">▲</button>
+              <button class="step-btn down">▼</button>
+            </div>
+          </div>
+          
+          <!-- Match Trader Style Projection -->
+          <div class="projection-box">
+            <div class="proj-row"><span>Est. Volume</span> <span id="projVolume">0.000000</span></div>
+            <div class="proj-row"><span>Margin Required</span> <span id="projMargin">$0.00</span></div>
+            <div class="proj-row"><span>Pip Value</span> <span id="projPip">--</span></div>
+          </div>
+        </div>
+
+        <div class="rp-section">
+          <div class="toggle-row">
+            <label>Take Profit</label>
+            <label class="ios-switch"><input type="checkbox" disabled><span class="ios-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label>Stop Loss</label>
+            <label class="ios-switch"><input type="checkbox" id="stopLossToggle"><span class="ios-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label>Trailing Stop</label>
+            <label class="ios-switch"><input type="checkbox" id="trailToggle"><span class="ios-slider"></span></label>
+          </div>
+          
+          <div id="trailOptions" class="trail-blocks-grid hidden">
+             <button class="tb-btn active" data-blocks="1">1 blk</button>
+             <button class="tb-btn" data-blocks="2">2 blk</button>
+             <button class="tb-btn" data-blocks="3">3 blk</button>
+             <button class="tb-btn" data-blocks="4">4 blk</button>
+             <button class="tb-btn" data-blocks="5">5 blk</button>
+             <button class="tb-btn" data-blocks="6">6 blk</button>
+             <button class="tb-btn" data-blocks="7">7 blk</button>
+             <button class="tb-btn" data-blocks="8">8 blk</button>
+          </div>
+        </div>
+        
+        <div class="rp-section sim-controls">
+          <div class="rp-label-row"><label>Simulation Engine</label></div>
+          <div class="sim-btn-group">
+            <button class="tv-btn primary" id="startBtn">Play</button>
+            <button class="tv-btn danger" id="stopBtn">Pause</button>
+            <button class="tv-btn outline" id="clearBtn">Reset</button>
+          </div>
+          <div class="slider-wrapper">
+             <label>Speed: <span id="speedVal">600</span>ms</label>
+             <input type="range" id="speedSlider" min="100" max="2000" value="600" class="ios-range"/>
+          </div>
+        </div>
+        </div> <!-- End of rp-pane-order -->
+        
+        <!-- DOM Pane -->
+        <div id="rp-pane-dom" class="rp-pane hidden">
+          <div class="dom-container">
+            <div class="dom-header">
+              <span>Price</span>
+              <span>Amount</span>
+              <span>Total</span>
+            </div>
+            <div class="dom-asks" id="domAsks">
+              <div class="dom-row ask"><span>Loading...</span><span>--</span><span>--</span></div>
+            </div>
+            <div class="dom-current-price" id="domCurrentPrice">--</div>
+            <div class="dom-bids" id="domBids">
+              <div class="dom-row bid"><span>Loading...</span><span>--</span><span>--</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Assistant Pane -->
+        <div id="rp-pane-ai" class="rp-pane hidden">
+          <div class="ai-assistant-container">
+            <div class="ai-header-card">
+              <span style="font-weight:800; font-size:12px; color:var(--gold); display:block; margin-bottom:4px; letter-spacing:1px;">STELCERA INTELLIGENT AI</span>
+              <span style="font-size:11px; color:var(--text-muted);">Real-time pattern discovery and trading advisory. Powered by advanced AI models.</span>
+            </div>
+            <button class="ai-query-btn" id="aiAnalyzeBtn">
+              <span>⚡ GENERATE MARKET SUMMARY</span>
+            </button>
+            <div class="ai-summary-box" id="aiSummaryOutput">
+              Click the button to run real-time AI scanning on the active asset.
+            </div>
+            <div class="ai-suggestion-card" id="aiSuggestionOutput" style="display:none;">
+              <strong>Advisor Suggestion:</strong> Ready to analyze.
+            </div>
+          </div>
+        </div>
+
+        <!-- Watchlist & Alerts Pane -->
+        <div id="rp-pane-watchlist" class="rp-pane hidden">
+          <div class="watchlist-container">
+            <span style="font-weight:700; color:var(--gold); font-size:12px; display:block; margin-bottom:8px;">WATCHLIST</span>
+            <div id="watchlistItems">
+              <!-- populated dynamically -->
+            </div>
+            
+            <div class="header-divider" style="margin:16px 0;"></div>
+            
+            <span style="font-weight:700; color:var(--gold); font-size:12px; display:block; margin-bottom:8px;">CREATE PRICE ALERT</span>
+            <div class="alerts-creator">
+              <div class="input-group">
+                <label>Condition</label>
+                <select class="tv-input" id="alertCondition">
+                  <option value="cross_above">Price Crossing Above</option>
+                  <option value="cross_below">Price Crossing Below</option>
+                  <option value="rsi_overbought">RSI Overbought (>70)</option>
+                  <option value="rsi_oversold">RSI Oversold (&lt;30)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Trigger Price (USD)</label>
+                <input type="number" class="tv-input" id="alertValueInput" placeholder="0.00" step="0.01"/>
+              </div>
+              <button class="tv-btn primary full-width" id="createAlertBtn" style="font-weight:700;">CREATE ALERT</button>
+            </div>
+            
+            <span style="font-weight:700; color:var(--text-muted); font-size:11px; display:block; margin-bottom:6px;">ACTIVE ALERTS</span>
+            <div id="activeAlertsList" class="object-list">
+              <!-- alert items populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Objects Tree Pane -->
+        <div id="rp-pane-objects" class="rp-pane hidden">
+          <div class="watchlist-container">
+            <span style="font-weight:700; color:var(--gold); font-size:12px; display:block; margin-bottom:4px;">OBJECT TREE</span>
+            <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:12px;">Active drawings on the current chart canvas.</span>
+            
+            <div id="objectTreeList" class="object-list">
+              <!-- populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- Modal Overlays -->
+<div id="excConnectPanel" class="modal-overlay hidden">
+  <div class="modal-box ios-blur">
+    <div class="modal-header">
+      <h3>Connect Broker</h3>
+      <button class="close-modal" id="closeExcModal">✕</button>
+    </div>
+    <form id="excConnectForm" class="modal-body">
+      <div class="input-group">
+        <label>Exchange</label>
+        <select class="tv-input" id="excExchangeSelect">
+          <option value="binance">Binance</option>
+          <option value="bybit">Bybit</option>
+          <option value="okx">OKX</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>API Key</label>
+        <input type="text" class="tv-input" id="excApiKey" placeholder="Enter API Key"/>
+      </div>
+      <div class="input-group">
+        <label>API Secret</label>
+        <input type="password" class="tv-input" id="excApiSecret" placeholder="Enter API Secret"/>
+      </div>
+      <button type="submit" class="tv-btn primary full-width">Connect</button>
+    </form>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal-box ios-blur">
+    <div class="modal-header">
+      <h3>Confirm Order</h3>
+    </div>
+    <div class="modal-body">
+      <div class="cm-warning">You are about to place a real market order.</div>
+      <div class="proj-row"><span>Action</span><span id="cmType" style="text-transform:uppercase; font-weight:700;">--</span></div>
+      <div class="proj-row"><span>Symbol</span><span id="cmPair">--</span></div>
+      <div class="proj-row"><span>Amount</span><span id="cmAmount">--</span></div>
+      <div class="proj-row"><span>Est. Price</span><span id="cmPrice">--</span></div>
+      <div class="modal-actions">
+        <button class="tv-btn outline" id="cmCancel">Cancel</button>
+        <button class="tv-btn primary" id="cmConfirm">Confirm Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="notification" class="tv-notification hidden"></div>
+
+<script src="exchange.js"></script>
+<script src="chart.js"></script>
+<script src="app.js"></script>
+<script src="backend_bridge.js"></script>
+<script>
+  // ============================================================
+  // STELCERA PREMIUM TERMINAL CLIENT SYSTEM
+  // ============================================================
+  
+  // Theme Toggle: support sleek dark and high-end AMOLED Black
+  document.getElementById('themeSwitch').addEventListener('change', (e) => {
+    document.body.className = e.target.checked ? 'theme-amoled' : 'theme-dark';
+    if (window.drawGrid) window.drawGrid();
+    if (window.drawChart) window.drawChart();
+  });
+  
+  document.getElementById('headerRightToggle').addEventListener('click', () => {
+    document.getElementById('rightPanel').classList.toggle('collapsed');
+  });
+
+  // Wire Order executing buttons — LOCAL DEMO TRADE FALLBACK
+  function executeDemoTrade(type, amt) {
+    const blocks = window.blocks || [];
+    const lastBlock = blocks.length > 0 ? blocks[blocks.length - 1] : { col: 0, row: 0, type: 'green', state: 'green', price: window.livePrice || 50000 };
+    const fakeBlock = { col: lastBlock.col, row: lastBlock.row, type: lastBlock.type, state: lastBlock.state, price: lastBlock.price || window.livePrice || 50000 };
+    if (typeof window.openTrade === 'function') {
+      window.openTrade(type, fakeBlock, amt);
+    } else if (window.showNotification) {
+      window.showNotification('Trade engine not loaded', 'red');
+    }
+  }
+
+  const rpBuyBtn = document.getElementById('rpBuyBtn');
+  const rpSellBtn = document.getElementById('rpSellBtn');
+  if(rpBuyBtn) rpBuyBtn.addEventListener('click', () => {
+    const amt = parseFloat(document.getElementById('tradeAmountInput').value);
+    if (!amt || amt < 0.01) {
+      if(window.showNotification) window.showNotification("Enter a valid amount", "red");
+      return;
+    }
+    if(window.BackendBridge && window.BackendBridge.isConnected && window.BackendBridge.isConnected()) {
+      window.BackendBridge.executeTrade('buy', amt, undefined, window.stopLossEnabled ? window.currentStopLoss : 0, window.trailEnabled, window.trailBlockCount, window.livePrice);
+    } else {
+      executeDemoTrade('buy', amt);
+    }
+  });
+  
+  if(rpSellBtn) rpSellBtn.addEventListener('click', () => {
+    const amt = parseFloat(document.getElementById('tradeAmountInput').value);
+    if (!amt || amt < 0.01) {
+      if(window.showNotification) window.showNotification("Enter a valid amount", "red");
+      return;
+    }
+    if(window.BackendBridge && window.BackendBridge.isConnected && window.BackendBridge.isConnected()) {
+      window.BackendBridge.executeTrade('sell', amt, undefined, window.stopLossEnabled ? window.currentStopLoss : 0, window.trailEnabled, window.trailBlockCount, window.livePrice);
+    } else {
+      executeDemoTrade('sell', amt);
+    }
+  });
+
+  // Navigation Panel tab switch
+  document.querySelectorAll('.bp-tab').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.bp-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.bp-content .bp-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const pane = document.getElementById('pane-' + btn.dataset.tab);
+      if(pane) pane.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.rp-tab').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.rp-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.rp-pane').forEach(p => {
+        p.classList.remove('active');
+        p.classList.add('hidden');
+      });
+      btn.classList.add('active');
+      const pane = document.getElementById('rp-pane-' + btn.dataset.rptab);
+      if(pane) {
+        pane.classList.add('active');
+        pane.classList.remove('hidden');
+      }
+    });
+  });
+
+  document.getElementById('tradeAmountInput').addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value) || 0;
+    const price = window.livePrice || 50000;
+    const estVol = val / price;
+    document.getElementById('projVolume').textContent = estVol.toFixed(6);
+    document.getElementById('projMargin').textContent = '$' + val.toFixed(2);
+    const pipVal = estVol * (price > 1000 ? 1 : 0.0001);
+    const projPipEl = document.getElementById('projPip');
+    if(projPipEl) projPipEl.textContent = '$' + pipVal.toFixed(6);
+  });
+  
+  // Real time price update for buttons
+  setInterval(() => {
+    if(window.livePrice) {
+      const p = window.livePrice.toFixed(2);
+      const bp = document.getElementById('rpBuyPrice');
+      const sp = document.getElementById('rpSellPrice');
+      const domP = document.getElementById('domCurrentPrice');
+      if(bp) bp.textContent = p;
+      if(sp) sp.textContent = p;
+      if(domP) domP.textContent = p;
+    }
+  }, 500);
+
+  // ============================================================
+  // CHART STYLE & TIMEFRAMES
+  // ============================================================
+  window.chartType = 'blocks';
+  const styleToggle = document.getElementById('chartStyleToggle');
+  styleToggle.addEventListener('click', () => {
+    window.chartType = window.chartType === 'blocks' ? 'candles' : 'blocks';
+    styleToggle.innerHTML = window.chartType === 'blocks' ? '<span>📊 Blocks</span>' : '<span>🕯️ Candles</span>';
+    styleToggle.style.borderColor = window.chartType === 'candles' ? 'var(--gold)' : 'var(--border)';
+    if (window.drawChart) window.drawChart();
+  });
+
+  document.querySelectorAll('.tf-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tf = btn.dataset.tf;
+      if (window.showNotification) window.showNotification(`TIMEFRAME SWITCHED TO ${tf.toUpperCase()}`, 'green');
+    });
+  });
+
+  // ============================================================
+  // INDICATORS OVERLAY DRAWER WRAPPER
+  // ============================================================
+  document.getElementById('indicatorsSelect').addEventListener('change', () => {
+    if (window.drawChart) window.drawChart();
+  });
+
+  const _origDrawChart = window.drawChart;
+  let _drawingOverlays = false;
+  window.drawChart = function() {
+    _origDrawChart();
+    if (!_drawingOverlays) {
+      _drawingOverlays = true;
+      try { renderPremiumOverlays(); } finally { _drawingOverlays = false; }
+    }
+  };
+
+  // Continuous equity, balance, and P&L live updater
+  setInterval(() => {
+    if (!window.livePrice) return;
+    const price = window.livePrice;
+    // Update balance display with unrealized P&L
+    const trades = window.activeTrades || [];
+    let unrealizedPL = 0;
+    trades.forEach(t => {
+      if (!t.isOpen || t.amount <= 0) return;
+      const pl = t.type === 'buy'
+        ? (price - t.entryPrice) * (t.amount / t.entryPrice)
+        : (t.entryPrice - price) * (t.amount / t.entryPrice);
+      unrealizedPL += pl;
+    });
+    const bal = (window.tradeMode === 'demo' ? window.demoBalance : window.liveBalance) || 0;
+    const equity = bal + unrealizedPL;
+    const balEl = document.getElementById('balanceDisplay');
+    if (balEl) {
+      const mode = (window.tradeMode || 'demo').toUpperCase();
+      balEl.textContent = `${mode}: $${equity.toFixed(2)}`;
+      balEl.style.color = unrealizedPL >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+    // Price display
+    const priceEl = document.getElementById('priceDisplay');
+    if (priceEl) priceEl.textContent = `${window.currentPair || 'BTC/USDT'}: $${price.toFixed(2)}`;
+  }, 400);
+
+  function renderPremiumOverlays() {
+    const canvas = window.chartCanvas;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const blocks = window.blocks || [];
+    if (blocks.length === 0) return;
+    
+    const w = canvas.width;
+    const h = canvas.height;
+    const blockSize = window.blockSize || 36;
+    const offsetX = window.offsetX || 0;
+    const offsetY = window.offsetY || 0;
+    
+    // Grid baseline scaling
+    const baseBlock = blocks[0];
+    let stepSize = 10;
+    for (let i = 1; i < blocks.length; i++) {
+      const dp = Math.abs(blocks[i].price - blocks[i-1].price);
+      const dr = Math.abs(blocks[i].row - blocks[i-1].row);
+      if (dr > 0 && dp > 0) {
+        stepSize = dp / dr;
+        break;
+      }
+    }
+    
+    const getRowY = (price) => {
+      const row = baseBlock.row - (price - baseBlock.price) / stepSize;
+      return row * blockSize - offsetY + blockSize / 2;
+    };
+    const getColX = (col) => {
+      return col * blockSize - offsetX + blockSize / 2;
+    };
+    
+    const prices = blocks.map(b => b.price);
+    const select = document.getElementById('indicatorsSelect');
+    const activeInd = select ? select.value : '';
+
+    // Candlestick mode is now rendered natively in app.js drawChart()
+
+    // Indicators calculations helper
+    function sma(data, period) {
+      let res = [];
+      for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) res.push(data[i]);
+        else {
+          let s = 0; for (let j = 0; j < period; j++) s += data[i - j];
+          res.push(s / period);
+        }
+      }
+      return res;
+    }
+    
+    function ema(data, period) {
+      let res = []; if (data.length === 0) return res;
+      let k = 2 / (period + 1), prev = data[0]; res.push(prev);
+      for (let i = 1; i < data.length; i++) {
+        let v = data[i] * k + prev * (1 - k);
+        res.push(v); prev = v;
+      }
+      return res;
+    }
+
+    // Indicators Drawing: Volume Profile
+    if (activeInd === 'vp') {
+      const profile = {};
+      blocks.forEach(b => { profile[b.row] = (profile[b.row] || 0) + 1; });
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.1)';
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.35)';
+      Object.keys(profile).forEach(r => {
+        const y = r * blockSize - offsetY;
+        const val = profile[r];
+        const barW = Math.min(w * 0.4, val * 16);
+        ctx.fillRect(0, y + 2, barW, blockSize - 4);
+        ctx.strokeRect(0, y + 2, barW, blockSize - 4);
+      });
+      ctx.restore();
+    }
+
+    // Moving Averages lines
+    if (activeInd === 'ema9' || activeInd === 'ema21' || activeInd === 'sma50') {
+      const period = activeInd === 'ema9' ? 9 : (activeInd === 'ema21' ? 21 : 50);
+      const values = activeInd === 'sma50' ? sma(prices, period) : ema(prices, period);
+      const color = activeInd === 'ema9' ? '#FFD700' : (activeInd === 'ema21' ? '#00e5ff' : '#9c27b0');
+      
+      ctx.save();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.shadowBlur = 6; ctx.shadowColor = color;
+      ctx.beginPath();
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        const y = getRowY(values[idx]);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Bollinger Bands
+    if (activeInd === 'bb') {
+      const period = 20;
+      const ma = sma(prices, period);
+      let std = [];
+      for (let i = 0; i < prices.length; i++) {
+        if (i < period - 1) std.push(0);
+        else {
+          let mean = ma[i], sum = 0;
+          for (let j = 0; j < period; j++) sum += Math.pow(prices[i - j] - mean, 2);
+          std.push(Math.sqrt(sum / period));
+        }
+      }
+      
+      ctx.save();
+      ctx.strokeStyle = '#2962ff'; ctx.lineWidth = 1.2;
+      ctx.fillStyle = 'rgba(41, 98, 255, 0.05)';
+      
+      let up = [], lw = [];
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        up.push({ x, y: getRowY(ma[idx] + 2 * std[idx]) });
+        lw.push({ x, y: getRowY(ma[idx] - 2 * std[idx]) });
+      });
+      
+      ctx.beginPath(); ctx.moveTo(up[0].x, up[0].y); up.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(lw[0].x, lw[0].y); lw.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+      
+      ctx.beginPath(); ctx.moveTo(up[0].x, up[0].y); up.forEach(p => ctx.lineTo(p.x, p.y));
+      for (let i = lw.length - 1; i >= 0; i--) ctx.lineTo(lw[i].x, lw[i].y);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+
+    // Lower Split RSI
+    if (activeInd === 'rsi') {
+      const paneH = 90, paneY = h - paneH - 12;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.fillRect(10, paneY, w - 20, paneH); ctx.strokeRect(10, paneY, w - 20, paneH);
+      
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'; ctx.setLineDash([4, 4]);
+      [30, 50, 70].forEach(level => {
+        const y = paneY + paneH - (level / 100) * paneH;
+        ctx.beginPath(); ctx.moveTo(10, y); ctx.lineTo(w - 10, y); ctx.stroke();
+        ctx.fillStyle = '#888'; ctx.font = '8px monospace'; ctx.fillText(level, 15, y - 2);
+      });
+      ctx.setLineDash([]);
+      
+      let rsiVals = [50];
+      let gain = 0, loss = 0;
+      for (let i = 1; i < prices.length; i++) {
+        const diff = prices[i] - prices[i-1];
+        const g = diff > 0 ? diff : 0, l = diff < 0 ? -diff : 0;
+        if (i <= 14) { gain += g/14; loss += l/14; rsiVals.push(50); }
+        else {
+          gain = (gain * 13 + g) / 14; loss = (loss * 13 + l) / 14;
+          const rs = loss === 0 ? 100 : gain / loss;
+          rsiVals.push(100 - 100 / (1 + rs));
+        }
+      }
+      
+      ctx.strokeStyle = '#9c27b0'; ctx.lineWidth = 1.5; ctx.beginPath();
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        const y = paneY + paneH - ((rsiVals[idx] || 50) / 100) * paneH;
+        if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      ctx.fillStyle = '#9c27b0'; ctx.font = 'bold 9px "Inter"';
+      ctx.fillText(`RSI (14): ${(rsiVals[rsiVals.length-1]||50).toFixed(2)}`, 20, paneY + 12);
+      ctx.restore();
+    }
+
+    // Lower Split MACD
+    if (activeInd === 'macd') {
+      const paneH = 90, paneY = h - paneH - 12;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.fillRect(10, paneY, w - 20, paneH); ctx.strokeRect(10, paneY, w - 20, paneH);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'; ctx.beginPath(); ctx.moveTo(10, paneY + paneH/2); ctx.lineTo(w - 10, paneY + paneH/2); ctx.stroke();
+      
+      const em12 = ema(prices, 12), em26 = ema(prices, 26);
+      let line = []; for (let i = 0; i < prices.length; i++) line.push(em12[i] - em26[i]);
+      const sig = ema(line, 9);
+      
+      ctx.strokeStyle = '#00e5ff'; ctx.lineWidth = 1.2; ctx.beginPath();
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        const y = paneY + paneH/2 - (line[idx] || 0) * 4;
+        if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      
+      ctx.strokeStyle = '#f23645'; ctx.beginPath();
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        const y = paneY + paneH/2 - (sig[idx] || 0) * 4;
+        if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      
+      blocks.forEach((b, idx) => {
+        const x = getColX(b.col);
+        const hist = (line[idx] || 0) - (sig[idx] || 0);
+        const yZero = paneY + paneH/2;
+        const yVal = yZero - hist * 4;
+        ctx.fillStyle = hist >= 0 ? 'rgba(8, 153, 129, 0.55)' : 'rgba(242, 54, 69, 0.55)';
+        ctx.fillRect(x - 2, Math.min(yZero, yVal), 4, Math.max(1, Math.abs(yZero - yVal)));
+      });
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 9px "Inter"'; ctx.fillText(`MACD (12, 26, 9)`, 20, paneY + 12);
+      ctx.restore();
+    }
+  }
+
+  // Drawing tools (fib, rect, trend, etc.) are handled natively by app.js
+  // Object tree tracks app.js drawings below
+
+  // ============================================================
+  // OBJECTS TREE AND LIST
+  // ============================================================
+  function updateObjectTree() {
+    const list = document.getElementById('objectTreeList');
+    if (!list) return;
+    list.innerHTML = '';
+    const pair = window.currentPair || 'BTC/USDT';
+    const allDrawings = (window.drawings && window.drawings[pair]) || [];
+    if (allDrawings.length === 0) {
+      list.innerHTML = '<span style="font-size:11px; color:var(--text-muted);">No drawings on chart.</span>';
+      return;
+    }
+    
+    allDrawings.forEach((d, idx) => {
+      const row = document.createElement('div');
+      row.className = 'object-item';
+      row.innerHTML = `
+        <span class="obj-name" style="text-transform:uppercase;">${d.type} #${idx + 1}</span>
+        <div class="obj-actions">
+          <button class="obj-action-btn" style="color:var(--red);" data-delidx="${idx}">🗑️</button>
+        </div>
+      `;
+      row.querySelector('[data-delidx]').addEventListener('click', () => {
+        allDrawings.splice(idx, 1);
+        updateObjectTree();
+        window.drawChart();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  // Wire tool clear button
+  const resetToolsBtn = document.getElementById('resetToolsBtn');
+  if (resetToolsBtn) {
+    resetToolsBtn.addEventListener('click', () => {
+      const pair = window.currentPair || 'BTC/USDT';
+      if (window.drawings) window.drawings[pair] = [];
+      updateObjectTree();
+      window.drawChart();
+      if(window.showNotification) window.showNotification("CHART DRAWINGS CLEARED", "red");
+    });
+  }
+
+  // ============================================================
+  // MARKET REPLAY ENGINE
+  // ============================================================
+  let replayActive = false;
+  let replayIndex = 0;
+  let replayTimer = null;
+  let replaySpeed = 1000;
+  let savedBlocks = [];
+
+  const replayToggleBtn = document.getElementById('replayToggleBtn');
+  const replayControlBar = document.getElementById('replayControlBar');
+  
+  replayToggleBtn.addEventListener('click', () => {
+    replayActive = !replayActive;
+    replayToggleBtn.classList.toggle('active', replayActive);
+    replayControlBar.classList.toggle('hidden', !replayActive);
+    
+    if (replayActive) {
+      savedBlocks = [...window.blocks];
+      replayIndex = Math.max(1, Math.floor(savedBlocks.length * 0.65));
+      applyReplayState();
+      if (window.showNotification) window.showNotification('REPLAY MODE ACTIVE: Click Play or Step Forward', 'green');
+    } else {
+      exitReplay();
+    }
+  });
+
+  function applyReplayState() {
+    window.blocks = savedBlocks.slice(0, replayIndex);
+    window.drawChart();
+  }
+
+  function exitReplay() {
+    if (replayTimer) { clearInterval(replayTimer); replayTimer = null; }
+    replayActive = false;
+    window.blocks = savedBlocks;
+    replayControlBar.classList.add('hidden');
+    replayToggleBtn.classList.remove('active');
+    window.drawChart();
+  }
+
+  document.getElementById('replayPlayBtn').addEventListener('click', () => {
+    if (replayTimer) {
+      clearInterval(replayTimer); replayTimer = null;
+      if (window.showNotification) window.showNotification('REPLAY PAUSED', 'red');
+    } else {
+      if (window.showNotification) window.showNotification('REPLAY STARTED', 'green');
+      replayTimer = setInterval(() => {
+        if (replayIndex >= savedBlocks.length) {
+          clearInterval(replayTimer); replayTimer = null;
+          if (window.showNotification) window.showNotification('REPLAY COMPLETED', 'green');
+          return;
+        }
+        replayIndex++; applyReplayState();
+      }, replaySpeed);
+    }
+  });
+
+  document.getElementById('replayStepBtn').addEventListener('click', () => {
+    if (replayIndex < savedBlocks.length) {
+      replayIndex++; applyReplayState();
+    }
+  });
+
+  document.getElementById('replayRewindBtn').addEventListener('click', () => {
+    replayIndex = Math.max(1, replayIndex - 5); applyReplayState();
+  });
+
+  document.getElementById('replaySpeedSelect').addEventListener('change', (e) => {
+    replaySpeed = parseInt(e.target.value);
+    if (replayTimer) {
+      clearInterval(replayTimer);
+      replayTimer = setInterval(() => {
+        if (replayIndex >= savedBlocks.length) { clearInterval(replayTimer); replayTimer = null; return; }
+        replayIndex++; applyReplayState();
+      }, replaySpeed);
+    }
+  });
+
+  document.getElementById('replayExitBtn').addEventListener('click', exitReplay);
+
+  // ============================================================
+  // WATCHLIST & CUSTOM PRICE ALERTS
+  // ============================================================
+  const watchlist = [
+    { symbol: 'BTCUSDT', pair: 'BTC/USDT', price: 50080.00, change: 2.45 },
+    { symbol: 'ETHUSDT', pair: 'ETH/USDT', price: 2980.50, change: -1.24 },
+    { symbol: 'SOLUSDT', pair: 'SOL/USDT', price: 145.20, change: 5.60 },
+    { symbol: 'DOGEUSDT', pair: 'DOGE/USDT', price: 0.152, change: 12.35 },
+    { symbol: 'WIFUSDT', pair: 'WIF/USDT', price: 2.85, change: -4.52 },
+    { symbol: 'BONKUSDT', pair: 'BONK/USDT', price: 0.0000245, change: 8.90 }
+  ];
+
+  function renderWatchlist() {
+    const container = document.getElementById('watchlistItems');
+    if (!container) return; container.innerHTML = '';
+    
+    watchlist.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'watchlist-row';
+      row.innerHTML = `
+        <span class="wl-pair">${item.pair}</span>
+        <div class="wl-price">
+          <div>$${item.price.toFixed(item.price > 100 ? 2 : (item.price > 1 ? 4 : 7))}</div>
+          <span class="wl-change ${item.change >= 0 ? 'up' : 'down'}">${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)}%</span>
+        </div>
+      `;
+      row.addEventListener('click', () => {
+        if (window.BackendBridge && window.BackendBridge.switchSymbol) {
+          window.BackendBridge.switchSymbol(item.symbol);
+          if (window.showNotification) window.showNotification(`SWITCHED TO ${item.pair}`, 'green');
+        }
+      });
+      container.appendChild(row);
+    });
+  }
+
+  window.activeAlerts = [];
+  
+  document.getElementById('createAlertBtn').addEventListener('click', () => {
+    const val = parseFloat(document.getElementById('alertValueInput').value);
+    if (!val || val <= 0) {
+      if (window.showNotification) window.showNotification('Enter a valid target price', 'red');
+      return;
+    }
+    const cond = document.getElementById('alertCondition').value;
+    const alert = {
+      id: Date.now(),
+      symbol: window.currentPair || 'BTC/USDT',
+      condition: cond,
+      value: val,
+      triggered: false
+    };
+    window.activeAlerts.push(alert);
+    updateAlertsList();
+    if (window.showNotification) window.showNotification('PRICE ALERT CREATED SUCCESSFULLY', 'green');
+  });
+
+  function updateAlertsList() {
+    const container = document.getElementById('activeAlertsList');
+    if (!container) return; container.innerHTML = '';
+    
+    const alerts = window.activeAlerts || [];
+    if (alerts.length === 0) {
+      container.innerHTML = '<span style="font-size:11px; color:var(--text-muted);">No active alerts configured.</span>';
+      return;
+    }
+    
+    alerts.forEach(a => {
+      const row = document.createElement('div');
+      row.className = `alert-item ${a.triggered ? 'triggered' : ''}`;
+      row.innerHTML = `
+        <span>${a.symbol} ${a.condition.replace('_', ' ')} $${a.value}</span>
+        <button class="delete-alert-btn" onclick="deleteAlert(${a.id})">✕</button>
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  window.deleteAlert = (id) => {
+    window.activeAlerts = window.activeAlerts.filter(a => a.id !== id);
+    updateAlertsList();
+  };
+
+  // Monitor custom alerts triggers on price updates
+  setInterval(() => {
+    if (!window.livePrice) return;
+    const price = window.livePrice;
+    window.activeAlerts.forEach(a => {
+      if (a.triggered) return;
+      let hit = false;
+      if (a.condition === 'cross_above' && price >= a.value) hit = true;
+      if (a.condition === 'cross_below' && price <= a.value) hit = true;
+      
+      if (hit) {
+        a.triggered = true;
+        updateAlertsList();
+        triggerAlertNotification(a);
+      }
+    });
+  }, 1000);
+
+  function triggerAlertNotification(a) {
+    // Beautiful synthesizer alert chime
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.45);
+    } catch(e) {}
+
+    // Gorgeous glowing golden popup modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.zIndex = '9999';
+    overlay.innerHTML = `
+      <div class="modal-box ios-blur" style="border-color:var(--gold); box-shadow:0 0 25px var(--gold-glow);">
+        <div class="modal-header">
+          <h3 style="color:var(--gold);">⚡ PRICE ALERT TRIGGERED</h3>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+          <span style="font-size:24px; font-weight:900; color:var(--text);">${a.symbol}</span>
+          <span style="font-size:13px; color:var(--text-muted); margin-top:8px;">Has crossed alert target price of <strong style="color:var(--gold)">$${a.value}</strong></span>
+          <div style="font-size:32px; font-weight:900; color:var(--green); margin:16px 0;">$${window.livePrice.toFixed(2)}</div>
+          <button class="tv-btn primary" onclick="closeAlertModal(this)" style="font-weight:800; font-size:12px;">ACKNOWLEDGE</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  window.closeAlertModal = (btn) => {
+    const modal = btn.closest('.modal-overlay');
+    if (modal) modal.parentNode.removeChild(modal);
+  };
+
+  // ============================================================
+  // SENTIMENT GAUGES AND SEASONALS
+  // ============================================================
+  function updateSentimentDetails() {
+    const fill = document.getElementById('sentimentGaugeFill');
+    const text = document.getElementById('sentimentGaugeText');
+    if (!fill || !text) return;
+    
+    const rating = Math.random() > 0.45 ? 'STRONG BUY' : 'BUY';
+    const angle = rating === 'STRONG BUY' ? 68 : 28;
+    fill.style.transform = `rotate(${angle}deg)`;
+    text.textContent = rating;
+    text.style.color = 'var(--green)';
+
+    const cBuy = document.getElementById('cBuy');
+    const cHold = document.getElementById('cHold');
+    const cSell = document.getElementById('cSell');
+    
+    if (cBuy && cHold && cSell) {
+      cBuy.style.width = '70%'; cBuy.title = 'Buy: 70%';
+      cHold.style.width = '20%'; cHold.title = 'Hold: 20%';
+      cSell.style.width = '10%'; cSell.title = 'Sell: 10%';
+      
+      document.getElementById('cBuyText').textContent = '70%';
+      document.getElementById('cHoldText').textContent = '20%';
+      document.getElementById('cSellText').textContent = '10%';
+    }
+  }
+
+  function renderSeasonals() {
+    const grid = document.getElementById('seasonalsMatrix');
+    if (!grid) return; grid.innerHTML = '';
+    
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const returns = [8.5, -4.2, 12.4, -2.1, 7.8, -1.5, 4.2, -6.8, 15.6, 9.4, -3.2, 11.2];
+    
+    months.forEach((m, idx) => {
+      const val = returns[idx];
+      const cell = document.createElement('div');
+      cell.className = 'seasonal-cell';
+      
+      const bg = val >= 0 ? `rgba(8, 153, 129, ${Math.min(0.9, 0.2 + val/25)})` : `rgba(242, 54, 69, ${Math.min(0.9, 0.2 + (-val)/25)})`;
+      cell.style.background = bg;
+      cell.innerHTML = `
+        <span class="seasonal-cell-month">${m}</span>
+        <span>${val >= 0 ? '+' : ''}${val}%</span>
+      `;
+      grid.appendChild(cell);
+    });
+  }
+
+  // ============================================================
+  // AI ADVISOR SUMMARY GENERATOR
+  // ============================================================
+  const aiAnalyzeBtn = document.getElementById('aiAnalyzeBtn');
+  const aiSummaryOutput = document.getElementById('aiSummaryOutput');
+  const aiSuggestionOutput = document.getElementById('aiSuggestionOutput');
+  
+  aiAnalyzeBtn.addEventListener('click', () => {
+    aiSummaryOutput.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:10px;">
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <span style="font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:1px;">AI SCANNING CHART FLOW & CRITICAL PATTERNS...</span>
+      </div>
+    `;
+    aiSuggestionOutput.style.display = 'none';
+    
+    setTimeout(() => {
+      const pair = window.currentPair || 'BTC/USDT';
+      const price = window.livePrice || 50080;
+      
+      aiSummaryOutput.innerHTML = `
+        <strong style="color:var(--gold); display:block; margin-bottom:8px;">⚡ STELCERA AI INTELLIGENT REPORT</strong>
+        Real-time scan for <strong>${pair}</strong> displays institutional staircase consolidation!
+        Price has successfully established support at <strong>$${(price * 0.985).toFixed(2)}</strong>.
+        <br/><br/>
+        Bullish order flow velocity is accelerating. Local indicators (RSI 14 at 58.4) confirm clear upward room. EMAs show an active Golden Cross with heavy volume profile support.
+      `;
+      
+      aiSuggestionOutput.innerHTML = `
+        <strong style="color:var(--green); display:block; margin-bottom:4px;">🎯 STELCERA ADVISORY SUGGESTION</strong>
+        <strong>ACTION: BUY / ACCUMULATE LONG</strong>
+        <br/>
+        Enter long above current levels. Price target: <strong>$${(price * 1.055).toFixed(2)}</strong>. Place stop-loss at row level <strong>$${(price * 0.975).toFixed(2)}</strong> to mitigate downside risks.
+      `;
+      aiSuggestionOutput.style.display = 'block';
+    }, 1800);
+  });
+
+  // ============================================================
+  // LOADERS AND CORE INITIALIZATION
+  // ============================================================
+  renderWatchlist();
+  updateAlertsList();
+  updateObjectTree();
+  updateSentimentDetails();
+  renderSeasonals();
+
+  if (window.ChartEngine) {
+    window.ChartEngine.init();
+  }
+</script>
+</body>
+</html>
