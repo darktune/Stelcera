@@ -40,6 +40,34 @@ body.theme-light {
   --major-grid: rgba(0, 0, 0, 0.1);
 }
 
+body.theme-amoled {
+  --bg: #000000;
+  --panel: rgba(10, 10, 10, 0.92);
+  --panel-solid: #050505;
+  --border: rgba(255, 215, 0, 0.22);
+  --text: #f5f5f5;
+  --text-muted: #888888;
+  --gold: #FFD700;
+  --gold-glow: rgba(255, 215, 0, 0.6);
+  --grid: rgba(255, 255, 255, 0.04);
+  --major-grid: rgba(255, 215, 0, 0.12);
+}
+
+body.theme-cyber {
+  --bg: #0b0e14;
+  --panel: rgba(15, 23, 42, 0.9);
+  --panel-solid: #0f172a;
+  --border: rgba(56, 189, 248, 0.22);
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --green: #10b981;
+  --red: #f43f5e;
+  --gold: #38bdf8;
+  --gold-glow: rgba(56, 189, 248, 0.55);
+  --grid: rgba(56, 189, 248, 0.04);
+  --major-grid: rgba(56, 189, 248, 0.12);
+}
+
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -1160,5 +1188,240 @@ body.theme-amoled .tv-bottom-panel {
 }
 body.theme-amoled .tool-btn {
   background: rgba(255, 255, 255, 0.02);
+}
+
+/* ---------------------------------------------------
+   TRADE POPUP & AMOUNT MODAL
+--------------------------------------------------- */
+.trade-popup {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(15, 18, 26, 0.92);
+  backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--gold);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px var(--gold-glow);
+  border-radius: 24px;
+  z-index: 1000;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.trade-popup.hidden {
+  display: none !important;
+}
+
+.tp-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tp-btn.buy {
+  background: var(--green);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(8, 153, 129, 0.4);
+}
+.tp-btn.buy:hover {
+  background: var(--green-hover);
+  transform: scale(1.05);
+}
+
+.tp-btn.sell {
+  background: var(--red);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(242, 54, 69, 0.4);
+}
+.tp-btn.sell:hover {
+  background: var(--red-hover);
+  transform: scale(1.05);
+}
+
+.tp-btn.close {
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 4px 8px;
+}
+.tp-btn.close:hover {
+  color: #ffffff;
+}
+
+.amount-popup-modal {
+  position: fixed;
+  width: 320px;
+  background: rgba(18, 22, 32, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 20px var(--gold-glow);
+  z-index: 10001;
+  padding: 16px;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.amount-popup-modal.hidden {
+  display: none !important;
+}
+
+.tap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tap-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+.tap-title.buy { color: var(--green); }
+.tap-title.sell { color: var(--red); }
+
+.tap-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+}
+.tap-close-btn:hover { color: #fff; }
+
+.tap-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tap-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.tap-info-row strong {
+  color: var(--text);
+}
+
+.tap-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+.tap-input-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.tap-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.tap-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.tap-error {
+  font-size: 11px;
+  color: var(--red);
+  font-weight: 600;
+  text-align: center;
+}
+.tap-error.hidden { display: none; }
+
+.tap-exec-btn {
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tap-exec-btn.buy {
+  background: var(--green);
+  box-shadow: 0 0 15px rgba(8, 153, 129, 0.5);
+}
+.tap-exec-btn.buy:hover {
+  background: var(--green-hover);
+}
+.tap-exec-btn.sell {
+  background: var(--red);
+  box-shadow: 0 0 15px rgba(242, 54, 69, 0.5);
+}
+.tap-exec-btn.sell:hover {
+  background: var(--red-hover);
+}
+
+/* ---------------------------------------------------
+   DEX & MEMECOIN RADAR STYLES
+--------------------------------------------------- */
+.dex-radar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dex-radar-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dex-radar-card:hover {
+  background: rgba(0, 229, 255, 0.06);
+  border-color: #00e5ff;
+  transform: translateY(-1px);
+}
+.dex-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.dex-token-name {
+  font-weight: 800;
+  font-size: 13px;
+  color: #fff;
+}
+.dex-score-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.dex-score-badge.safe { background: rgba(8, 153, 129, 0.2); color: var(--green); }
+.dex-score-badge.warning { background: rgba(255, 215, 0, 0.2); color: var(--gold); }
+.dex-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.dex-card-chain {
+  color: #00e5ff;
+  font-weight: 700;
 }
 

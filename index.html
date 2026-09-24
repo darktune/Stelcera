@@ -291,6 +291,7 @@
           <button class="rp-tab active" data-rptab="order">Order</button>
           <button class="rp-tab" data-rptab="dom">DOM</button>
           <button class="rp-tab" data-rptab="ai" style="color:var(--gold);">🧠 AI</button>
+          <button class="rp-tab" data-rptab="dex" style="color:#00e5ff;">🚀 DEX</button>
           <button class="rp-tab" data-rptab="watchlist">📁 List</button>
           <button class="rp-tab" data-rptab="objects">🌳 Tree</button>
         </div>
@@ -464,6 +465,21 @@
           </div>
         </div>
 
+        <!-- DEX / Memecoin Radar Pane -->
+        <div id="rp-pane-dex" class="rp-pane hidden">
+          <div class="watchlist-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:800; color:#00e5ff; font-size:12px;">DEX & MEMECOIN RADAR</span>
+              <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:rgba(0,229,255,0.15); color:#00e5ff; font-weight:700;">SOL / BASE</span>
+            </div>
+            <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:12px;">Real-time high-velocity momentum & rug-check score.</span>
+            
+            <div id="dexRadarList" class="dex-radar-list">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
       </div>
     </aside>
 
@@ -517,9 +533,38 @@
       </div>
     </div>
   </div>
+<div id="notification" class="tv-notification hidden"></div>
+
+<!-- Floating Signal Block Trade Popup -->
+<div id="tradePopup" class="trade-popup hidden">
+  <button id="buyBtn" class="tp-btn buy">BUY</button>
+  <button id="sellBtn" class="tp-btn sell">SELL</button>
+  <button id="closePopup" class="tp-btn close">✕</button>
 </div>
 
-<div id="notification" class="tv-notification hidden"></div>
+<!-- Floating Trade Amount Modal -->
+<div id="tradeAmountPopup" class="amount-popup-modal hidden">
+  <div class="tap-header">
+    <span id="tapTitle" class="tap-title buy">BUY TRADE</span>
+    <button id="tapClose" class="tap-close-btn">✕</button>
+  </div>
+  <div class="tap-body">
+    <div class="tap-info-row">
+      <span>Entry Price:</span>
+      <strong id="tapEntryPrice">$0.00</strong>
+    </div>
+    <div class="tap-info-row">
+      <span>Available Bal:</span>
+      <strong id="tapBalance">$10,000.00</strong>
+    </div>
+    <div class="tap-input-group">
+      <label for="tapAmountInput">Trade Amount (USD):</label>
+      <input type="number" id="tapAmountInput" class="tap-input" placeholder="100.00" min="0.01" step="any" />
+    </div>
+    <div id="tapError" class="tap-error hidden"></div>
+    <button id="tapExecute" class="tap-exec-btn buy">EXECUTE BUY</button>
+  </div>
+</div>
 
 <script src="exchange.js"></script>
 <script src="chart.js"></script>
@@ -1260,9 +1305,60 @@
   });
 
   // ============================================================
+  // DEX & MEMECOIN RADAR
+  // ============================================================
+  const dexTokens = [
+    { symbol: 'PEPEUSDT', pair: 'PEPE/USDT', name: 'Pepe', chain: 'ETH / BASE', price: 0.0000089, change: 18.4, score: 98, liq: '$42.5M' },
+    { symbol: 'WIFUSDT', pair: 'WIF/USDT', name: 'dogwifhat', chain: 'SOLANA', price: 2.45, change: 12.8, score: 96, liq: '$18.2M' },
+    { symbol: 'BONKUSDT', pair: 'BONK/USDT', name: 'Bonk', chain: 'SOLANA', price: 0.000021, change: 8.2, score: 95, liq: '$25.0M' },
+    { symbol: 'POPCATUSDT', pair: 'POPCAT/USDT', name: 'Popcat', chain: 'SOLANA', price: 1.22, change: 24.5, score: 92, liq: '$9.4M' },
+    { symbol: 'BRETTUSDT', pair: 'BRETT/USDT', name: 'Brett', chain: 'BASE', price: 0.088, change: 14.1, score: 94, liq: '$12.8M' },
+    { symbol: 'DOGEUSDT', pair: 'DOGE/USDT', name: 'Dogecoin', chain: 'DOGE / CEX', price: 0.158, change: 6.4, score: 99, liq: '$180M' },
+    { symbol: 'FARTCOINUSDT', pair: 'FART/USDT', name: 'Fartcoin', chain: 'PUMP.FUN', price: 0.34, change: 45.2, score: 88, liq: '$4.2M' }
+  ];
+
+  function renderDexRadar() {
+    const container = document.getElementById('dexRadarList');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    dexTokens.forEach(token => {
+      const card = document.createElement('div');
+      card.className = 'dex-radar-card';
+      const scoreClass = token.score >= 90 ? 'safe' : 'warning';
+      card.innerHTML = `
+        <div class="dex-card-top">
+          <div>
+            <span class="dex-token-name">${token.name}</span>
+            <span style="font-size:11px; color:var(--text-muted); margin-left:4px;">${token.pair}</span>
+          </div>
+          <span class="dex-score-badge ${scoreClass}">🛡️ ${token.score}/100</span>
+        </div>
+        <div class="dex-card-bottom">
+          <span class="dex-card-chain">${token.chain}</span>
+          <span>Liq: ${token.liq}</span>
+          <span style="color:${token.change >= 0 ? 'var(--green)' : 'var(--red)'}; font-weight:800;">
+            ${token.change >= 0 ? '+' : ''}${token.change.toFixed(1)}%
+          </span>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        if (window.BackendBridge && window.BackendBridge.switchSymbol) {
+          window.BackendBridge.switchSymbol(token.symbol);
+          if (window.showNotification) {
+            window.showNotification(`DEX RADAR: CONNECTED TO ${token.name} (${token.chain})`, 'green');
+          }
+        }
+      });
+      container.appendChild(card);
+    });
+  }
+
+  // ============================================================
   // LOADERS AND CORE INITIALIZATION
   // ============================================================
   renderWatchlist();
+  renderDexRadar();
   updateAlertsList();
   updateObjectTree();
   updateSentimentDetails();

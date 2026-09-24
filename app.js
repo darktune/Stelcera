@@ -1021,7 +1021,7 @@ function openAmountPopup(type) {
   const execBtn = document.getElementById('tapExecute');
   const entryEl = document.getElementById('tapEntryPrice');
   const balEl   = document.getElementById('tapBalance');
-  const input   = document.getElementById('tradeAmountInput');
+  const input   = document.getElementById('tapAmountInput') || document.getElementById('tradeAmountInput');
   const entryPrice = pendingTradeBlock?.price || getCurrentPrice();
   title.textContent   = type === 'buy' ? 'BUY TRADE' : 'SELL TRADE';
   title.className     = `tap-title ${type}`;
@@ -1029,14 +1029,14 @@ function openAmountPopup(type) {
   execBtn.textContent = type === 'buy' ? 'EXECUTE BUY' : 'EXECUTE SELL';
   entryEl.textContent = `$${entryPrice.toFixed(2)}`;
   balEl.textContent   = `$${getBalance().toFixed(2)}`;
-  input.value = '';
+  if (input) input.value = '';
   document.getElementById('tapError').classList.add('hidden');
   popup.style.left = '50%'; popup.style.top = '50%';
   popup.style.transform = 'translate(-50%,-50%) scale(0.85)';
   popup.style.transformOrigin = 'center center';
   popup.classList.remove('hidden');
   requestAnimationFrame(() => popup.classList.add('visible'));
-  input.focus();
+  if (input) input.focus();
 }
 function closeAmountPopup() {
   const popup = document.getElementById('tradeAmountPopup');
@@ -1052,7 +1052,8 @@ function showTapError(msg) {
 }
 
 document.getElementById('tapExecute').addEventListener('click', async () => {
-  const rawVal = document.getElementById('tradeAmountInput').value.trim();
+  const amtInput = document.getElementById('tapAmountInput') || document.getElementById('tradeAmountInput');
+  const rawVal = amtInput ? amtInput.value.trim() : '';
   const amount = parseFloat(rawVal);
   if (!rawVal || isNaN(amount) || amount < 0.01) { showTapError('ENTER A VALID AMOUNT (MIN $0.01)'); return; }
   
