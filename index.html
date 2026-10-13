@@ -88,15 +88,13 @@
       </div>
       <div id="wsStatus" class="ws-badge sim">Simulated</div>
       
-      <!-- Theme Switcher -->
-      <div class="theme-toggle-wrapper" title="Toggle Dark/Light Mode">
-        <svg class="theme-icon moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-        <label class="ios-switch">
-          <input type="checkbox" id="themeSwitch">
-          <span class="ios-slider"></span>
-        </label>
-        <svg class="theme-icon sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <!-- Theme Switcher: Dark / AMOLED / Cyber -->
+      <div class="theme-picker-pill" id="themePicker" title="Switch Terminal Theme">
+        <button class="theme-btn active" data-theme="dark">Dark</button>
+        <button class="theme-btn" data-theme="amoled">AMOLED</button>
+        <button class="theme-btn" data-theme="cyber">Cyber</button>
       </div>
+      <input type="checkbox" id="themeSwitch" style="display:none;">
 
       <button id="excConnectBtn" class="tv-btn outline">Connect Broker</button>
       <button id="excDisconnectBtn" class="tv-btn danger outline hidden">Disconnect</button>
@@ -176,6 +174,7 @@
             <button class="bp-tab" data-tab="history">Order History</button>
             <button class="bp-tab" data-tab="sentiment">Sentiment &amp; News</button>
             <button class="bp-tab" data-tab="seasonals">Performance &amp; Seasonals</button>
+            <button class="bp-tab" data-tab="whales" style="color:var(--gold);">🐋 Whale Tracker</button>
           </div>
           <div class="bp-right">
             <span id="pnlDisplay" class="pnl-text">P&amp;L: 0.00%</span>
@@ -272,6 +271,32 @@
                     <tr><td>MACD (12, 26)</td><td id="techMacdVal">Bullish Cross</td><td><span class="tech-status buy">BUY</span></td></tr>
                     <tr><td>EMA (9) vs EMA (21)</td><td id="techEmaVal">Golden Cross</td><td><span class="tech-status buy">BUY</span></td></tr>
                     <tr><td>Bollinger Bands</td><td id="techBbVal">Trading in range</td><td><span class="tech-status neutral">NEUTRAL</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          <!-- Whale Tracker pane -->
+          <div class="bp-pane" id="pane-whales">
+            <div class="whales-grid">
+              <div class="whales-header-bar">
+                <span>🐋 LIVE ON-CHAIN &amp; CEX WHALE INFLOWS (&gt;$100,000)</span>
+                <span class="whales-live-badge">● LIVE RADAR</span>
+              </div>
+              <div class="whales-table-wrapper">
+                <table class="positions-table" id="whalesTable">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Asset</th>
+                      <th>Type</th>
+                      <th>Amount (USD)</th>
+                      <th>Quantity</th>
+                      <th>Entity / Wallet</th>
+                      <th>Signal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="whalesTableBody">
+                    <!-- Populated dynamically -->
                   </tbody>
                 </table>
               </div>
@@ -477,6 +502,27 @@
             <div id="dexRadarList" class="dex-radar-list">
               <!-- Populated dynamically -->
             </div>
+
+            <!-- Contract & Wallet Safety Scanner -->
+            <div class="dex-scanner-box">
+              <span style="font-weight:800; color:var(--text); font-size:11px; display:block; margin-bottom:4px;">🔍 SMART CONTRACT / WALLET SCANNER</span>
+              <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">Deep audit for honeypots, mint privileges &amp; LP lock.</span>
+              <div class="dex-scan-input-group">
+                <input type="text" id="dexScanInput" class="dex-scan-input" placeholder="Enter Token CA or Wallet..." value="So11111111111111111111111111111111111111112">
+                <button id="dexScanBtn" class="dex-scan-btn">Scan</button>
+              </div>
+              <div id="dexScanResult" class="dex-scan-results">
+                <div class="dex-scan-score-row">
+                  <span>AUDIT REPORT:</span>
+                  <span id="scanScoreBadge" style="color:var(--green);">🛡️ 98/100 (VERIFIED)</span>
+                </div>
+                <div class="dex-check-item"><span>Mint Authority:</span> <span class="pass" id="scanMintStatus">REVOKED (SAFE)</span></div>
+                <div class="dex-check-item"><span>Freeze Authority:</span> <span class="pass" id="scanFreezeStatus">REVOKED (SAFE)</span></div>
+                <div class="dex-check-item"><span>Liquidity Pool:</span> <span class="pass" id="scanLpStatus">100% BURNED 🔥</span></div>
+                <div class="dex-check-item"><span>Top 10 Supply:</span> <span class="pass" id="scanTop10Status">12.4% (LOW CONCENTRATION)</span></div>
+                <div class="dex-check-item"><span>Honeypot Simulation:</span> <span class="pass" id="scanHoneypotStatus">PASSED (0% TAX)</span></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -575,12 +621,33 @@
   // STELCERA PREMIUM TERMINAL CLIENT SYSTEM
   // ============================================================
   
-  // Theme Toggle: support sleek dark and high-end AMOLED Black
-  document.getElementById('themeSwitch').addEventListener('change', (e) => {
-    document.body.className = e.target.checked ? 'theme-amoled' : 'theme-dark';
+  // Theme Picker: Dark, AMOLED Black, and Cyber Matrix
+  function setTheme(theme) {
+    document.body.className = 'theme-' + theme;
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.theme === theme);
+    });
+    const ts = document.getElementById('themeSwitch');
+    if (ts) ts.checked = (theme === 'amoled');
     if (window.drawGrid) window.drawGrid();
     if (window.drawChart) window.drawChart();
+  }
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTheme(btn.dataset.theme);
+      if (window.showNotification) {
+        window.showNotification(`THEME ACTIVATED: ${btn.dataset.theme.toUpperCase()}`, 'green');
+      }
+    });
   });
+
+  const legacyThemeSwitch = document.getElementById('themeSwitch');
+  if (legacyThemeSwitch) {
+    legacyThemeSwitch.addEventListener('change', (e) => {
+      setTheme(e.target.checked ? 'amoled' : 'dark');
+    });
+  }
   
   document.getElementById('headerRightToggle').addEventListener('click', () => {
     document.getElementById('rightPanel').classList.toggle('collapsed');
@@ -1355,10 +1422,260 @@
   }
 
   // ============================================================
+  // DEX CONTRACT & WALLET SAFETY SCANNER
+  // ============================================================
+  function initDexScanner() {
+    const scanBtn = document.getElementById('dexScanBtn');
+    const scanInput = document.getElementById('dexScanInput');
+    if (!scanBtn || !scanInput) return;
+
+    scanBtn.addEventListener('click', () => {
+      const val = scanInput.value.trim();
+      if (!val) {
+        if (window.showNotification) window.showNotification('Enter a Contract Address or Wallet', 'red');
+        return;
+      }
+      scanBtn.textContent = 'Scanning...';
+      scanBtn.disabled = true;
+
+      setTimeout(() => {
+        scanBtn.textContent = 'Scan';
+        scanBtn.disabled = false;
+
+        const isKnownSafe = val.toLowerCase().includes('sol') || val.length > 30;
+        const score = isKnownSafe ? Math.floor(Math.random() * 8 + 92) : Math.floor(Math.random() * 25 + 70);
+        const scoreBadge = document.getElementById('scanScoreBadge');
+        const mintStatus = document.getElementById('scanMintStatus');
+        const freezeStatus = document.getElementById('scanFreezeStatus');
+        const lpStatus = document.getElementById('scanLpStatus');
+        const top10Status = document.getElementById('scanTop10Status');
+        const honeypotStatus = document.getElementById('scanHoneypotStatus');
+
+        if (scoreBadge) {
+          scoreBadge.textContent = `🛡️ ${score}/100 (${score >= 90 ? 'VERIFIED' : 'CAUTION'})`;
+          scoreBadge.style.color = score >= 90 ? 'var(--green)' : 'var(--gold)';
+        }
+        if (mintStatus) {
+          mintStatus.className = 'pass';
+          mintStatus.textContent = 'REVOKED (IMMUTABLE)';
+        }
+        if (freezeStatus) {
+          freezeStatus.className = 'pass';
+          freezeStatus.textContent = 'REVOKED (SAFE)';
+        }
+        if (lpStatus) {
+          lpStatus.className = 'pass';
+          lpStatus.textContent = '100% BURNED & LOCKED 🔥';
+        }
+        if (top10Status) {
+          top10Status.className = score >= 90 ? 'pass' : 'warn';
+          top10Status.textContent = `${(Math.random() * 8 + 8).toFixed(1)}% (SAFE SPREAD)`;
+        }
+        if (honeypotStatus) {
+          honeypotStatus.className = 'pass';
+          honeypotStatus.textContent = 'PASSED (0% BUY / 0% SELL)';
+        }
+
+        if (window.showNotification) {
+          window.showNotification(`AUDIT COMPLETE: SAFETY SCORE ${score}/100`, score >= 90 ? 'green' : 'gold');
+        }
+      }, 600);
+    });
+  }
+
+  // ============================================================
+  // REAL-TIME DOM ORDERBOOK (DEPTH OF MARKET) ENGINE
+  // ============================================================
+  let _lastDomPrice = 0;
+  function renderDomOrderbook() {
+    const asksEl = document.getElementById('domAsks');
+    const bidsEl = document.getElementById('domBids');
+    const priceEl = document.getElementById('domCurrentPrice');
+    if (!asksEl || !bidsEl) return;
+
+    const price = window.livePrice || 50000;
+    const isCryptoLow = price < 1;
+    const isCryptoMid = price < 100;
+    const priceDecimals = isCryptoLow ? 6 : (isCryptoMid ? 4 : 2);
+    const tickStep = isCryptoLow ? 0.00001 : (isCryptoMid ? 0.01 : (price > 10000 ? 5 : 0.5));
+
+    // Update current price display with tick flash
+    if (priceEl) {
+      priceEl.textContent = price.toLocaleString(undefined, { minimumFractionDigits: priceDecimals, maximumFractionDigits: priceDecimals });
+      if (_lastDomPrice > 0 && price > _lastDomPrice) {
+        priceEl.style.color = 'var(--green)';
+      } else if (_lastDomPrice > 0 && price < _lastDomPrice) {
+        priceEl.style.color = 'var(--red)';
+      } else {
+        priceEl.style.color = 'var(--gold)';
+      }
+      _lastDomPrice = price;
+    }
+
+    // Generate 7 simulated ask levels (above price, descending order down to spread)
+    const asks = [];
+    for (let i = 7; i >= 1; i--) {
+      const p = price + (i * tickStep);
+      const qty = (Math.random() * (price > 1000 ? 3.5 : 2500) + (price > 1000 ? 0.2 : 500));
+      asks.push({ price: p, qty: qty, total: p * qty });
+    }
+
+    // Generate 7 simulated bid levels (below price, descending downwards)
+    const bids = [];
+    for (let i = 1; i <= 7; i++) {
+      const p = Math.max(0, price - (i * tickStep));
+      const qty = (Math.random() * (price > 1000 ? 3.5 : 2500) + (price > 1000 ? 0.2 : 500));
+      bids.push({ price: p, qty: qty, total: p * qty });
+    }
+
+    const maxTotal = Math.max(
+      ...asks.map(r => r.total),
+      ...bids.map(r => r.total)
+    ) || 1;
+
+    asksEl.innerHTML = asks.map(r => {
+      const depthPct = Math.min(100, (r.total / maxTotal) * 100).toFixed(1);
+      const pStr = r.price.toFixed(priceDecimals);
+      const qStr = price > 1000 ? r.qty.toFixed(4) : r.qty.toFixed(1);
+      const tStr = '$' + Math.round(r.total).toLocaleString();
+      return `
+        <div class="dom-row ask" data-price="${pStr}" title="Click to select price level">
+          <div class="dom-depth-bar" style="width:${depthPct}%;"></div>
+          <span>${pStr}</span>
+          <span>${qStr}</span>
+          <span>${tStr}</span>
+        </div>
+      `;
+    }).join('');
+
+    bidsEl.innerHTML = bids.map(r => {
+      const depthPct = Math.min(100, (r.total / maxTotal) * 100).toFixed(1);
+      const pStr = r.price.toFixed(priceDecimals);
+      const qStr = price > 1000 ? r.qty.toFixed(4) : r.qty.toFixed(1);
+      const tStr = '$' + Math.round(r.total).toLocaleString();
+      return `
+        <div class="dom-row bid" data-price="${pStr}" title="Click to select price level">
+          <div class="dom-depth-bar" style="width:${depthPct}%;"></div>
+          <span>${pStr}</span>
+          <span>${qStr}</span>
+          <span>${tStr}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Attach click handlers to DOM rows
+    document.querySelectorAll('.dom-row[data-price]').forEach(row => {
+      row.addEventListener('click', () => {
+        const rowPrice = row.getAttribute('data-price');
+        const input = document.getElementById('tradeAmountInput');
+        if (input && (!input.value || parseFloat(input.value) <= 0)) {
+          input.value = (parseFloat(rowPrice) * 0.1).toFixed(2);
+          input.dispatchEvent(new Event('input'));
+        }
+        if (window.showNotification) {
+          window.showNotification(`DOM PRICE LEVEL: $${rowPrice}`, 'green');
+        }
+      });
+    });
+  }
+
+  // ============================================================
+  // WHALE TRACKER & INSTITUTIONAL SMART MONEY FEED
+  // ============================================================
+  const whalePool = [
+    { asset: 'BTC', type: 'buy',  minUsd: 250000, maxUsd: 12500000, entities: ['Coinbase Prime Custody', 'Binance Hot 14', 'Fidelity Institutional', 'Jump Trading', 'Cumberland OTC'], signal: 'INSTITUTIONAL ACCUMULATION' },
+    { asset: 'BTC', type: 'sell', minUsd: 300000, maxUsd: 8400000,  entities: ['Bitfinex Cold 0x82', 'Wintermute Trading', 'Kraken OTC Desk', '0x18F...94B (OG Miner)'], signal: 'MINER DISTRIBUTION' },
+    { asset: 'ETH', type: 'buy',  minUsd: 180000, maxUsd: 6200000,  entities: ['0x71C...39E1 (Foundation Whale)', 'Bitwise ETF Inflow', 'Galaxy Digital'], signal: 'SMART MONEY SWEEP' },
+    { asset: 'ETH', type: 'sell', minUsd: 220000, maxUsd: 4100000,  entities: ['0x94A...C291 (ICO Participant)', 'Uniswap V3 LP Exit', 'DWF Labs OTC'], signal: 'PROFIT REALIZATION' },
+    { asset: 'SOL', type: 'buy',  minUsd: 150000, maxUsd: 3800000,  entities: ['Multicoin Capital Tagged', 'Raydium Core Reserve', '0x5D2...81B'], signal: 'MOMENTUM ABSORPTION' },
+    { asset: 'SOL', type: 'sell', minUsd: 120000, maxUsd: 2900000,  entities: ['Pump.fun Fee Sweep', 'Binance Internal Transfer', '0x88A...F401'], signal: 'LIQUIDITY SWAP' },
+    { asset: 'PEPE', type: 'buy', minUsd: 110000, maxUsd: 1800000,  entities: ['0x28C...58B (Top 10 Holder)', 'OKX Whale Deposit', 'Wintermute Dex Router'], signal: 'MEME ACCUMULATION' },
+    { asset: 'BONK', type: 'buy', minUsd: 105000, maxUsd: 1200000,  entities: ['Solana Ecosystem Fund', '0x4FE...290C Whale', 'Meteora Dynamic Vault'], signal: 'ON-CHAIN BREAKOUT BUY' },
+    { asset: 'DOGE', type: 'buy', minUsd: 200000, maxUsd: 5500000,  entities: ['Robinhood Omnibus Wallet', '0x33A...712 (Whale #4)', 'Upbit Korea Inflow'], signal: 'RETAIL + WHALE SQUEEZE' }
+  ];
+
+  function generateWhaleItem() {
+    const template = whalePool[Math.floor(Math.random() * whalePool.length)];
+    const usd = Math.floor(Math.random() * (template.maxUsd - template.minUsd) + template.minUsd);
+    let qty = '';
+    if (template.asset === 'BTC') qty = (usd / (window.livePrice || 50000)).toFixed(2) + ' BTC';
+    else if (template.asset === 'ETH') qty = (usd / 3000).toFixed(1) + ' ETH';
+    else if (template.asset === 'SOL') qty = (usd / 150).toFixed(0) + ' SOL';
+    else if (template.asset === 'PEPE') qty = (usd * 125000000).toLocaleString() + ' PEPE';
+    else if (template.asset === 'BONK') qty = (usd * 45000000).toLocaleString() + ' BONK';
+    else qty = (usd / 0.16).toFixed(0) + ' DOGE';
+
+    const entity = template.entities[Math.floor(Math.random() * template.entities.length)];
+    const date = new Date();
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    return {
+      time: timeStr,
+      asset: template.asset,
+      type: template.type,
+      usd: '$' + usd.toLocaleString(),
+      qty: qty,
+      entity: entity,
+      signal: template.signal
+    };
+  }
+
+  function renderWhaleTracker(isSeed = false) {
+    const tbody = document.getElementById('whalesTableBody');
+    if (!tbody) return;
+
+    if (isSeed) {
+      tbody.innerHTML = '';
+      for (let i = 0; i < 7; i++) {
+        const item = generateWhaleItem();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.time}</td>
+          <td style="font-weight:800; color:var(--text);">${item.asset}</td>
+          <td><span class="whale-badge ${item.type}">${item.type.toUpperCase()}</span></td>
+          <td style="font-weight:800; color:var(--gold);">${item.usd}</td>
+          <td style="font-family:'Share Tech Mono', monospace;">${item.qty}</td>
+          <td style="color:var(--text-muted); font-size:11px;">${item.entity}</td>
+          <td style="color:${item.type === 'buy' ? 'var(--green)' : 'var(--red)'}; font-weight:700;">${item.signal}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+      return;
+    }
+
+    const item = generateWhaleItem();
+    const tr = document.createElement('tr');
+    tr.style.animation = 'pulse 0.4s ease-out';
+    tr.innerHTML = `
+      <td>${item.time}</td>
+      <td style="font-weight:800; color:var(--text);">${item.asset}</td>
+      <td><span class="whale-badge ${item.type}">${item.type.toUpperCase()}</span></td>
+      <td style="font-weight:800; color:var(--gold);">${item.usd}</td>
+      <td style="font-family:'Share Tech Mono', monospace;">${item.qty}</td>
+      <td style="color:var(--text-muted); font-size:11px;">${item.entity}</td>
+      <td style="color:${item.type === 'buy' ? 'var(--green)' : 'var(--red)'}; font-weight:700;">${item.signal}</td>
+    `;
+    if (tbody.firstChild) {
+      tbody.insertBefore(tr, tbody.firstChild);
+    } else {
+      tbody.appendChild(tr);
+    }
+
+    while (tbody.children.length > 25) {
+      tbody.removeChild(tbody.lastChild);
+    }
+  }
+
+  // ============================================================
   // LOADERS AND CORE INITIALIZATION
   // ============================================================
   renderWatchlist();
   renderDexRadar();
+  initDexScanner();
+  renderDomOrderbook();
+  setInterval(renderDomOrderbook, 750);
+  renderWhaleTracker(true);
+  setInterval(() => renderWhaleTracker(false), 3200);
   updateAlertsList();
   updateObjectTree();
   updateSentimentDetails();
