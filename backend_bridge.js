@@ -49,11 +49,104 @@ window.BackendBridge = (() => {
       hint.style.marginTop = '15px';
       hint.style.color = '#888';
       
+      const demoBtn = document.createElement('button');
+      demoBtn.id = 'engineDemoBtn';
+      demoBtn.textContent = '▶ ENTER INTERACTIVE DEMO MODE';
+      demoBtn.style.marginTop = '20px';
+      demoBtn.style.padding = '12px 24px';
+      demoBtn.style.background = '#ffe600';
+      demoBtn.style.color = '#000';
+      demoBtn.style.border = 'none';
+      demoBtn.style.borderRadius = '8px';
+      demoBtn.style.fontSize = '14px';
+      demoBtn.style.fontWeight = '800';
+      demoBtn.style.cursor = 'pointer';
+      demoBtn.style.boxShadow = '0 0 15px rgba(255, 230, 0, 0.4)';
+      demoBtn.onclick = () => {
+        startStandaloneDemo();
+      };
+
       overlay.appendChild(text);
       overlay.appendChild(hint);
+      overlay.appendChild(demoBtn);
       document.body?.appendChild(overlay);
     }
     overlay.style.display = show ? 'flex' : 'none';
+  }
+
+  // ----------------------------------------------------------
+  // STANDALONE CLIENT DEMO / FALLBACK GENERATOR (FOR VERCEL)
+  // ----------------------------------------------------------
+  let standaloneTimer = null;
+  function startStandaloneDemo() {
+    setEngineOverlay(false);
+    updateBadge('DEMO (LIVE)', 'green');
+    if (window.blocks && window.blocks.length > 0) return;
+
+    const startPrice = 83500;
+    const stepSize = 10;
+    let currRow = 100;
+    let currPrice = startPrice;
+    const initialBlocks = [];
+
+    for (let c = 0; c < 120; c++) {
+      const up = Math.random() > 0.48;
+      currRow += up ? -1 : 1;
+      currPrice += up ? stepSize : -stepSize;
+      initialBlocks.push({
+        col: c,
+        row: currRow,
+        type: up ? 'green' : 'red',
+        price: currPrice,
+        timestamp: Date.now() - (120 - c) * 600
+      });
+    }
+
+    applyBlocks(initialBlocks);
+    window.livePrice = currPrice;
+    if (typeof window.refreshBalanceDisplay === 'function') window.refreshBalanceDisplay();
+    if (typeof window.drawGrid === 'function') window.drawGrid();
+    if (typeof window.drawChart === 'function') window.drawChart();
+
+    if (!standaloneTimer) {
+      standaloneTimer = setInterval(() => {
+        if (connected) {
+          clearInterval(standaloneTimer);
+          standaloneTimer = null;
+          return;
+        }
+        if (!window.blocks || window.blocks.length === 0) return;
+        const last = window.blocks[window.blocks.length - 1];
+        if (!last) return;
+        const up = Math.random() > 0.49;
+        const newRow = last.row + (up ? -1 : 1);
+        const newPrice = last.price + (up ? stepSize : -stepSize);
+        const newBlock = {
+          col: last.col + 1,
+          row: newRow,
+          type: up ? 'green' : 'red',
+          state: 'normal',
+          price: newPrice,
+          timestamp: Date.now()
+        };
+        window.blocks.push(newBlock);
+        if (window.blocks.length > 500) window.blocks.shift();
+        window.livePrice = newPrice;
+        window.currentLevel = newRow;
+        window.currentCol = newBlock.col;
+
+        if (window.cameraFollowing) {
+          const bp = window.blockSize || 40;
+          const cw = (window.chartCanvas && window.chartCanvas.width > 100) ? window.chartCanvas.width : 1200;
+          const ch = (window.chartCanvas && window.chartCanvas.height > 100) ? window.chartCanvas.height : 600;
+          window.offsetX = Math.max(0, newBlock.col * bp - cw + bp * 6);
+          window.offsetY = newBlock.row * bp - Math.floor(ch / 2) + Math.floor(bp / 2);
+        }
+
+        if (typeof window.drawGrid === 'function') window.drawGrid();
+        if (typeof window.drawChart === 'function') window.drawChart();
+      }, 700);
+    }
   }
 
   // ----------------------------------------------------------
@@ -94,22 +187,26 @@ window.BackendBridge = (() => {
       socket.onerror = () => {
         console.error('[BRIDGE] Backend connection error');
         useBackend = false;
+        if (retryCount >= 1 && (!window.blocks || window.blocks.length === 0)) {
+          startStandaloneDemo();
+        }
       };
 
       socket.onclose = () => {
-        setEngineOverlay(true);
         connected  = false;
         useBackend = false;
         updateBadge('DISCONNECTED', 'demo');
         if (retryCount < RETRY_MAX) {
           retryCount++;
-          const delay = Math.min(1000 * retryCount, 10000);
+          const delay = Math.min(1000 * retryCount, 4000);
           const overlayText = document.getElementById('engineOverlayText');
-          if (overlayText) overlayText.textContent = `CONNECTION LOST. RECONNECTING IN ${delay/1000}s...`;
+          if (overlayText) overlayText.textContent = `CONNECTING TO ENGINE (${retryCount}/${RETRY_MAX})...`;
           retryTimer = setTimeout(connect, delay);
+          if (retryCount >= 2 && (!window.blocks || window.blocks.length === 0)) {
+            startStandaloneDemo();
+          }
         } else {
-          const overlayText = document.getElementById('engineOverlayText');
-          if (overlayText) overlayText.textContent = 'ENGINE UNAVAILABLE. PLEASE RESTART BACKEND.';
+          startStandaloneDemo();
         }
       };
 

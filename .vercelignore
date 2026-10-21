@@ -1,0 +1,6 @@
+backend/
+*.pdf
+*.zip
+.vscode/
+__pycache__/
+*.pyc
