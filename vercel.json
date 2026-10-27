@@ -1,6 +1,3 @@
 {
-  "version": 2,
-  "cleanUrls": true,
-  "buildCommand": "echo 'Build complete'",
-  "outputDirectory": "."
+  "cleanUrls": true
 }
