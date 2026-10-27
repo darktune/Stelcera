@@ -1,9 +1,3 @@
-from http.server import BaseHTTPRequestHandler
-
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write('{"status": "ok", "app": "STELCERA Terminal"}'.encode('utf-8'))
-        return
+def app(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'application/json')])
+    return [b'{"status": "ok", "app": "STELCERA Terminal"}']
