@@ -1,0 +1,9 @@
+{
+  "name": "stelcera",
+  "version": "1.0.0",
+  "description": "STELCERA — Intelligent Signal Block Trading Terminal",
+  "private": true,
+  "scripts": {
+    "build": "echo 'Static build ready'"
+  }
+}
