@@ -1,3 +1,7 @@
 {
-  "cleanUrls": true
+  "functions": {
+    "app.py": {
+      "includeFiles": "index.html,style.css,app.js,chart.js,exchange.js,backend_bridge.js,favicon.svg,fallback.svg"
+    }
+  }
 }
